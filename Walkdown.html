@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OPC ENERGY WALKDOWN CHECKLIST</title>
+    <!-- Include jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+        background-image: url(Images/engine.jpg);
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1,
+      h3 {
+        color: #2c3e50;
+      }
+      h2 {
+        color: #dc3545;
+      }
+      h1 {
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 10px;
+      }
+      h2 {
+        margin-top: 30px;
+      }
+      .login-form,
+      .position-selection,
+      .shift-selection {
+        max-width: 400px;
+        margin: 50px auto;
+        padding: 20px;
+        background-color: white;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-right: 5px;
+        margin-top: 5px;
+      }
+      button:hover {
+        background-color: #2980b9;
+      }
+      button.secondary {
+        background-color: #6c757d;
+      }
+      button.secondary:hover {
+        background-color: #5a6268;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      tr:nth-child(even) {
+        background-color: #f9f9f9;
+      }
+      .hidden {
+        display: none;
+      }
+      .logout-btn {
+        float: right;
+        background-color: #e74c3c;
+      }
+      .logout-btn:hover {
+        background-color: #c0392b;
+      }
+      select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 16px;
+      }
+      .weather-info {
+        background-color: #e3f2fd;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .weather-details {
+        display: flex;
+        align-items: center;
+      }
+      .weather-icon {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+      }
+      .refresh-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        color: #3498db;
+      }
+      .timestamp {
+        font-size: 0.9em;
+        color: #666;
+      }
+      .value-input-container {
+        position: relative;
+      }
+      .value-input {
+        padding-right: 40px !important;
+      }
+      .unit-label {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #666;
+      }
+      /* Value status colors */
+      .valid-value {
+        color: #28a745;
+        font-weight: bold;
+      }
+      .low-value {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .high-value {
+        color: #dc3545;
+        font-weight: bold;
+      }
+      .slash-value {
+        color: #28a745;
+        font-weight: bold;
+      }
+      /* Dropdown selection colors */
+      .select-ok {
+        color: #28a745 !important; /* Green for OK */
+        font-weight: bold;
+      }
+      .select-no {
+        color: #dc3545 !important; /* Red for NO/PRESENT */
+        font-weight: bold;
+      }
+      .select-absent {
+        color: #28a745 !important; /* Green for ABSENT */
+        font-weight: bold;
+      }
+      .select-present {
+        color: #dc3545 !important; /* Red for PRESENT */
+        font-weight: bold;
+      }
+      .select-default {
+        color: inherit !important;
+      }
+      .position-options {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      .position-btn {
+        width: 48%;
+        padding: 15px;
+        font-size: 16px;
+      }
+      /* Modal styles for critical warning */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+      }
+      .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 3px solid #e74c3c;
+        border-radius: 10px;
+        width: 80%;
+        max-width: 500px;
+        text-align: center;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        animation: shake 0.5s;
+      }
+      .modal-title {
+        color: #e74c3c;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
+      }
+      .modal-message {
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
+      .modal-btn {
+        background-color: #e74c3c;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .modal-btn:hover {
+        background-color: #c0392b;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+          transform: translateX(-5px);
+        }
+        20%,
+        40%,
+        60%,
+        80% {
+          transform: translateX(5px);
+        }
+      }
+      /* Remarks section styles */
+      .remarks-section {
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+      .remarks-title {
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #2c3e50;
+      }
+      #remarks-text {
+        width: 100%;
+        min-height: 100px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+      }
+      .submit-confirm {
+        margin-top: 20px;
+        text-align: center;
+      }
+      .confirm-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 10px;
+      }
+      /* Additional styles for export buttons */
+      .export-buttons {
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+      }
+      .export-btn {
+        background-color: #6c757d;
+        color: white;
+      }
+      .export-btn:hover {
+        background-color: #5a6268;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <!-- Login Screen -->
+      <div id="login-screen" class="login-form">
+        <h1>WALKDOWN SIEMENS ENERGY</h1>
+        <h2>SIEMENS ENERGY</h2>
+        <h2>OPC ENERGY</h2>
+        <h2>
+          OUR GOAL-ZERO HARM! SAFETY FIRST - <span id="current-date"></span>
+        </h2>
+        <div class="timestamp" id="login-time"></div>
+
+        <div class="form-group">
+          <label for="employee-id">Employee ID:</label>
+          <input
+            type="text"
+            id="employee-id"
+            placeholder="Enter 4-digit ID"
+            maxlength="4"
+            pattern="\d{4}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password:</label>
+          <input type="password" id="password" placeholder="Enter password" />
+        </div>
+        <button id="login-btn">Login</button>
+      </div>
+
+      <!-- Position Selection -->
+      <div id="position-selection" class="position-selection hidden">
+        <h2>Select Your Position</h2>
+        <div class="timestamp" id="position-select-time"></div>
+
+        <div class="position-options">
+          <button id="operator-btn" class="position-btn">Operator Shift</button>
+          <button id="manager-btn" class="position-btn">Shift Manager</button>
+        </div>
+
+        <button id="back-to-login-from-position" class="secondary">
+          Back to Login
+        </button>
+      </div>
+
+      <!-- Shift Selection -->
+      <div id="shift-selection" class="shift-selection hidden">
+        <h2 id="shift-selection-title">Select Your Shift</h2>
+        <div class="timestamp" id="shift-select-time"></div>
+
+        <div class="form-group">
+          <label>Shift Type:</label>
+          <select id="shift-type">
+            <!-- Options will be populated based on position -->
+          </select>
+        </div>
+        <div class="form-group weekend-shift hidden">
+          <label>Weekend Shift Type:</label>
+          <select id="weekend-shift-type">
+            <option value="morning-12hr">Morning @ 9:00</option>
+            <option value="night-12hr">Night @ 21:00</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="checklist-date">Date:</label>
+          <input type="date" id="checklist-date" />
+        </div>
+        <button id="proceed-btn">Proceed to Walkdown</button>
+        <button id="back-to-position" class="secondary">
+          Back to Position Selection
+        </button>
+      </div>
+
+      <!-- Checklist Table -->
+      <div id="checklist-screen" class="container hidden">
+        <button id="logout-btn" class="logout-btn">Logout</button>
+        <h1>WALKDOWN CHECKLIST</h1>
+        <h2 id="checklist-header"></h2>
+        <div class="timestamp" id="checklist-time"></div>
+
+        <!-- Weather Information -->
+        <div class="weather-info">
+          <div class="weather-details">
+            <img
+              id="weather-icon"
+              class="weather-icon"
+              src=""
+              alt="Weather icon"
+            />
+            <div>
+              <h3 id="weather-location">Loading weather...</h3>
+              <div id="weather-description"></div>
+              <div>Temperature: <span id="weather-temp"></span>°C</div>
+              <div>Humidity: <span id="weather-humidity"></span>%</div>
+            </div>
+          </div>
+          <button
+            id="refresh-weather"
+            class="refresh-btn"
+            title="Refresh weather data"
+          >
+            ↻
+          </button>
+        </div>
+
+        <table id="checklist-table">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>KKS</th>
+              <th>Check</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Rows will be added dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Remarks Section (initially hidden) -->
+        <div id="remarks-container" class="hidden">
+          <div class="remarks-section">
+            <div class="remarks-title">Final Remarks</div>
+            <p>
+              Please note any observations, faults, leaks, safety issues, or
+              other comments:
+            </p>
+            <textarea
+              id="remarks-text"
+              placeholder="Enter any remarks here..."
+            ></textarea>
+            <div class="submit-confirm">
+              <p>Do you want to submit the checklist?</p>
+              <div class="confirm-buttons">
+                <button id="confirm-submit" class="modal-btn">
+                  Submit Checklist
+                </button>
+                <button id="cancel-submit" class="secondary">Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 10px"
+        >
+          <button id="save-draft-btn">Save Draft</button>
+          <button id="submit-btn">Submit Checklist</button>
+          <button id="refresh-time-btn" class="secondary">
+            Update Timestamp
+          </button>
+          <div class="export-buttons">
+            <button id="export-pdf-btn" class="export-btn">
+              Export to PDF
+            </button>
+            <button id="load-draft-btn" class="export-btn">Load Draft</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Critical Warning Modal -->
+      <div id="critical-warning-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-title">!!! WARNING !!!</div>
+          <div class="modal-message">
+            CO2 MUST BE TURNED OFF BEFORE ENTERING!
+          </div>
+          <button class="modal-btn" id="acknowledge-warning">
+            I ACKNOWLEDGE
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Initialize jsPDF
+      const { jsPDF } = window.jspdf;
+
+      // Register the autoTable plugin
+      jsPDF.autoTable = window.jspdf.AutoTable;
+
+      // Enhanced checklist data with position-specific visibility
+      const checklistData = [
+        {
+          location: "1. Gas station area condition",
+          kks: "10EUR",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "2. MBL system chillers screens",
+          kks: "11MBL71/72AC001",
+          check: "Alarms",
+          options: ["Select", "PRESENT", "ABSENT"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system fans noises",
+          kks: "11MBL71/72AN---",
+          check: "Check",
+          options: ["Select", "PRESENT", "ABSENT"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system pumps condition",
+          kks: "11MBL61/62AP005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system pumps oil levels",
+          kks: "",
+          check: "Oil Level",
+          options: ["Select", "H", "M", "L"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system pumps inlet pressure",
+          kks: "11MBL61/62CP505",
+          check: "Value",
+          unit: "bar",
+          min: 2.1,
+          max: 3,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system pumps outlet pressure",
+          kks: "11MBL61/62CP520",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 15,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system expansion tank pressure",
+          kks: "11MBL63CP505",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 20,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "MBL system area",
+          kks: "10URB01/02/03",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "3. EKT system skid 2 area",
+          kks: "10EKT",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "EKT system screen",
+          kks: "10EKT",
+          check: "Alarms",
+          options: ["Select", "PRESENT", "ABSENT"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "4. Chemical cubes storage area",
+          kks: "",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "5. Evacuation system holding pump 1 condition",
+          kks: "10MAJ41AP005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Holding pump 1 water temperature",
+          kks: "10MAJ41CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 160,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Evacuation system holding pump 2 condition",
+          kks: "10MAJ42AP005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Holding pump 2 water temperature",
+          kks: "10MAJ42CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 160,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Evac. system holding pumps water tank level",
+          kks: "10MAJ50CL505",
+          check: "Value",
+          unit: "cm",
+          min: 0,
+          max: 60,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Evacuation system hogging pump condition",
+          kks: "10MAJ45AP005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Hogging pump water temperature",
+          kks: "10MAJ45CT510",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 160,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Hogging pump water tank level",
+          kks: "10MAJ45CL505",
+          check: "Value",
+          unit: "cm",
+          min: 0,
+          max: 60,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Evacuation system area",
+          kks: "10URC/10ULC",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "6. ACC fan motor 1 temperature",
+          kks: "10MAG10CT015",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "6. ACC fan motor 2 temperature",
+          kks: "10MAG10CT020",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "6. ACC fan motor 3 temperature",
+          kks: "10MAG10CT025",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "ACC passway east side",
+          kks: "",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "ACC passway west side",
+          kks: "",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "7. Condensate tank pit area",
+          kks: "10ULC",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Condensate tank water level",
+          kks: "10MAG10CL505",
+          check: "Value",
+          unit: "cm",
+          min: 0,
+          max: 2000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Backwash filter condition",
+          kks: "10LBD15AT005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Backwash filter condition",
+          kks: "10LBD15AT005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["manager"],
+          requiresWarning: true,
+        },
+        {
+          location: "Backwash filter DP",
+          kks: "10LBD15CP581",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 1.6,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "8. Flash vessel spary valve air leak",
+          kks: "10LCE60AA210",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: true,
+        },
+        {
+          location: "9. ST enclosure",
+          kks: "10UMA",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST purifier unit condition",
+          kks: "10MAV91AP110",
+          check: "Check",
+          options: ["Select", "ON", "OFF"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "St oil mist DP",
+          kks: "11M8L6J6ZCP504",
+          check: "Value",
+          unit: "mbar",
+          min: -30,
+          max: 30,
+          // defaultValue: "-22/-15",
+          allowSlash: true,
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST lube oil supply pressure",
+          kks: "10MAV40CP520",
+          check: "value",
+          unit: "bar",
+          min: 0,
+          max: 100,
+          defaultValue: "-22/-15",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST lube oil pump discharge pressure",
+          kks: "10MAV20CP510",
+          check: "value",
+          unit: "bar",
+          min: 0,
+          max: 15,
+          defaultValue: "",
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST top of lube oil tank condition",
+          kks: "10MAV10BB010",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST drain valve air leaks",
+          kks: "ALL DRAIN VALVES",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "ST CV valves leaks (2nd floor)",
+          kks: "10LBA51/50AA060/50",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "10. Duplex filter condition",
+          kks: "10LCE10AT005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "11. ST CO2 container condition (including AC)",
+          kks: "10USX",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "12. CCW pumps condition ",
+          kks: "10PGB11/12AP005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "CCW pumps oil level",
+          kks: "",
+          check: "Oil Level",
+          options: ["Select", "H", "M", "L"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "CCW pumps DP",
+          kks: "10PGB11/12CP015",
+          check: "DP Value",
+          unit: "bar",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "CCW/CHLD water heat exchanger ",
+          kks: "10PGB30AC005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "13. Air system container condition (including AC) ",
+          kks: "10UTF",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Compressed air tank 1 pressure",
+          kks: "10QFA30CP505",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Compressed air tank 2 pressure",
+          kks: "10QFA31CP505",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "LFC tank area",
+          kks: "10UMY",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "LFC tank presuure",
+          kks: "10LFC10CP505",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 10,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "15. Ammonia dosing stations area ",
+          kks: "10QCD",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Ammonia preparation tank level",
+          kks: "10QCD15CL501",
+          check: "Length",
+          unit: "cm",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Ammonia cube level",
+          kks: "10QCD10BB002",
+          check: "Percent Value",
+          unit: "%",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "16. Phosphate dosing station area ",
+          kks: "11QCC",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Phosphate preparation tank level",
+          kks: "11QCC10CL501",
+          check: "Length",
+          unit: "cm",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "17. CEMS container condition (including AC) ",
+          kks: "10UCH0101",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "18. Blowdown tank pressure",
+          kks: "11LBH10CP505",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "19. Feed water heat exchanger condition",
+          kks: "10LCC50AC005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "20. Floor 1 area condition (Main steam line)",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Floor 1 PGB line pressure",
+          kks: "10PGB30CP505",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 20,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Floor 1 CCW expansion tank pressure",
+          kks: "10PGB10CP510",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 20,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "21. Floor 2 area condition (By pass line)",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Feedwater tank condens. line press.",
+          kks: "10LCA50CP505",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Feed water tank floor condition",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "PGB cooler fans 1, 2, 3, 4 noises",
+          kks: "10PGB21/22/23/24AC005",
+          check: "Check",
+          options: ["Select", "PRESENT", "ABSENT"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "PGB coolers floor condition",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "24. HRSG LP drum condition",
+          kks: "11HAD50BB005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "HRSG LP drum pressure",
+          kks: "11HAD50CP505",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "HRSG HP drum condition",
+          kks: "11HAD10BB005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "HRSG super heater line temperature",
+          kks: "11HAH20CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 600,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "HP steam main line temperature",
+          kks: "11LBA10CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 600,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "HRSG drums floor condition",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "25. HRSG ground floor condition",
+          kks: "11UHA",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "26. Sampling system chiller (Mode ON)",
+          kks: "11QUP60AC001",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Sampling system flow (Left and Right sides)",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Samp.sys.container condition (including AC)",
+          kks: "11UTQ",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Chemical analayzes storage",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: true,
+        },
+        {
+          location: "27. GT CO2 container condition",
+          kks: "10USX",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "28. GT package room condition",
+          kks: "10UBA",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "29. GT package battery room condition",
+          kks: "11UBA0102",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "30. GT enclosure condition",
+          kks: "10UMB",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "GT inspection window",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "GT gear and start motor area condition",
+          kks: "10USX",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "GT top of lube oil tank condition",
+          kks: "11MBV10BB005",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "GT coaleser filter (green color)",
+          kks: "11QFA20AT005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "31. GT generator enclosure condition",
+          kks: "11UMB",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "32. FWP suction temperature",
+          kks: "10LAB20CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 200,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP suction pressure",
+          kks: "10LAC21/22CP515",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 1.5,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP HP discharge pressure",
+          kks: "10LAC21/22CP505",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 15,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP LP discharge pressure",
+          kks: "10LAC21/22CP510",
+          check: "Value",
+          unit: "Mpa",
+          min: 0,
+          max: 10,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP HP side oil temperature",
+          kks: "10LAC21/22CT510",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 160,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP LP side oil temperature",
+          kks: "10LAC21/22CT505",
+          check: "Value",
+          unit: "°C",
+          min: 0,
+          max: 160,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP HP side oil level",
+          kks: "",
+          check: "Check",
+          options: ["Select", "H", "M", "L"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "FWP LP side oil level",
+          kks: "",
+          check: "Check",
+          options: ["Select", "H", "M", "L"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "33. EKT pumps skid 1 area",
+          kks: "10UBS",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "34. Gas fuel supply filters condition",
+          kks: "11MBP05/06AT005",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "Gas fuel supply filters condensate tank level",
+          kks: "11MBP05BB050",
+          check: "Check",
+          options: ["Select", "H", "M", "L"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "35. GT lube oil heat exchanger condition",
+          kks: "11MBV30AC005/010",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "36. Electrical room floor 1+server room condition",
+          kks: "11UCA0201",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "37. Electrical room floor 0 condition",
+          kks: "11UCA0102",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "38. Battery room condition",
+          kks: "11UCA0121",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Battery room hydrogen device green light",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "39. EDG container 2 sides condition (including AC)",
+          kks: "10UBN",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "EDG running hours",
+          kks: "",
+          check: "Value",
+          unit: "h",
+          min: 0,
+          max: 10000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "EDG starts",
+          kks: "",
+          check: "Value",
+          unit: "",
+          min: 0,
+          max: 10000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "EDG diesel fuel level",
+          kks: "",
+          check: "Liter",
+          unit: "L",
+          min: 0,
+          max: 5000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "EDG emergency flashlight)",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "40. LV transformer condition",
+          kks: "11BFT10",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          // defaultValue: "NO",
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "LV transformer area",
+          kks: "10UBD",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "41. DW container condition (including AC)",
+          kks: "10GHC",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "DW area left DW supply counter",
+          kks: "10GHC21CF005",
+          check: "Value",
+          unit: "",
+          min: 0,
+          max: 100000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "DW area right DW supply counter",
+          kks: "10GHC22CF005",
+          check: "Value",
+          unit: "",
+          min: 0,
+          max: 100000,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "DW supply pressure",
+          kks: "10GHC30CP503",
+          check: "Value",
+          unit: "bar",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "DW supply conductivity",
+          kks: "10GHC30CQ001",
+          check: "Value",
+          unit: " μS/cm",
+          min: 0,
+          max: 100,
+          defaultValue: "",
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "DW tank leaks",
+          kks: "10GCR10BB001",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+        {
+          location: "42. Battery room condition",
+          kks: "10UAC0113",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "Battery room hydrogen device green light",
+          kks: "",
+          check: "Check",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator"],
+          requiresWarning: false,
+        },
+        {
+          location: "43. Main transformer door area",
+          kks: "10UBS01/10UZD01",
+          check: "Clean/No",
+          options: ["Select", "OK", "NO"],
+          visibleTo: ["operator", "manager"],
+          requiresWarning: false,
+        },
+      ];
+
+      // Configuration for OpenWeatherMap API
+      const weatherConfig = {
+        apiKey: "3dce9b1c66837262a25b3f448d354a76",
+        city: "Israel",
+        units: "metric",
+      };
+
+      // Current user position
+      let currentPosition = null;
+      // Track the last interacted row
+      let lastInteractedRow = null;
+
+      // Update timestamp display
+      function updateTimestamp(elementId) {
+        const now = new Date();
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          timeZoneName: "short",
+        };
+        document.getElementById(
+          elementId
+        ).textContent = `Last updated: ${now.toLocaleString("en-GB", options)}`;
+        return now;
+      }
+
+      // Validate value against range and apply appropriate styling
+      function validateValue(inputElement, min, max, allowSlash = false) {
+        const value = inputElement.value;
+
+        if (allowSlash && value.includes("/")) {
+          // Validate slash-separated values
+          const parts = value.split("/");
+          if (parts.length !== 2) {
+            inputElement.classList.remove(
+              "valid-value",
+              "low-value",
+              "high-value",
+              "slash-value"
+            );
+            return false;
+          }
+
+          const part1 = parseFloat(parts[0]);
+          const part2 = parseFloat(parts[1]);
+
+          if (isNaN(part1) || isNaN(part2)) {
+            inputElement.classList.remove(
+              "valid-value",
+              "low-value",
+              "high-value",
+              "slash-value"
+            );
+            return false;
+          }
+
+          // Both parts must be within range
+          if (part1 >= min && part1 <= max && part2 >= min && part2 <= max) {
+            inputElement.classList.remove("low-value", "high-value");
+            inputElement.classList.add("slash-value");
+            return true;
+          } else {
+            inputElement.classList.remove("valid-value", "slash-value");
+            inputElement.classList.add("high-value");
+            return false;
+          }
+        } else {
+          // Original numeric validation
+          const numValue = parseFloat(value);
+          if (isNaN(numValue)) {
+            inputElement.classList.remove(
+              "valid-value",
+              "low-value",
+              "high-value",
+              "slash-value"
+            );
+            return false;
+          }
+
+          if (numValue < min) {
+            inputElement.classList.remove(
+              "valid-value",
+              "high-value",
+              "slash-value"
+            );
+            inputElement.classList.add("low-value");
+            return false;
+          } else if (numValue > max) {
+            inputElement.classList.remove(
+              "valid-value",
+              "low-value",
+              "slash-value"
+            );
+            inputElement.classList.add("high-value");
+            return false;
+          } else {
+            inputElement.classList.remove(
+              "low-value",
+              "high-value",
+              "slash-value"
+            );
+            inputElement.classList.add("valid-value");
+            return true;
+          }
+        }
+      }
+
+      // Show critical warning modal
+      function showCriticalWarning() {
+        const modal = document.getElementById("critical-warning-modal");
+        modal.style.display = "block";
+
+        // Play warning sound
+        const warningSound = new Audio(
+          "data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..."
+        );
+        warningSound.play().catch((e) => console.log("Audio play failed:", e));
+      }
+
+      // Handle row interaction and show warning when moving to critical section
+      function handleRowInteraction(currentIndex) {
+        // Get the previous and current items
+        const prevItem = checklistData[lastInteractedRow];
+        const currentItem = checklistData[currentIndex];
+
+        // Check if we're moving to an item that requires a warning after the previous item
+        if (prevItem && currentItem.requiresWarning) {
+          showCriticalWarning();
+        }
+        lastInteractedRow = currentIndex;
+      }
+
+      // Show remarks section before final submission
+      function showRemarksSection() {
+        document.getElementById("remarks-container").classList.remove("hidden");
+        document.getElementById("remarks-text").focus();
+
+        // Scroll to remarks section
+        document
+          .getElementById("remarks-container")
+          .scrollIntoView({ behavior: "smooth" });
+      }
+
+      // Hide remarks section
+      function hideRemarksSection() {
+        document.getElementById("remarks-container").classList.add("hidden");
+      }
+
+      // Save checklist to localStorage
+      function saveChecklistToStorage() {
+        const checklistDataToSave = {
+          position: currentPosition,
+          shiftType: document.getElementById("shift-type").value,
+          weekendShiftType: document.getElementById("weekend-shift-type").value,
+          date: document.getElementById("checklist-date").value,
+          items: [],
+          remarks: document.getElementById("remarks-text")?.value || "",
+          timestamp: new Date().toISOString(),
+        };
+
+        // Gather all checklist values
+        const rows = document.querySelectorAll("#checklist-table tbody tr");
+        rows.forEach((row) => {
+          const location = row.querySelector("td:first-child").textContent;
+          const kks = row.querySelector("td:nth-child(2)").textContent;
+          const checkType = row.querySelector("td:nth-child(3)").textContent;
+
+          let value = "";
+          const select = row.querySelector("select");
+          const input = row.querySelector("input");
+          if (select) {
+            value = select.value;
+          } else if (input) {
+            value = input.value;
+          }
+
+          checklistDataToSave.items.push({
+            location,
+            kks,
+            checkType,
+            value,
+          });
+        });
+
+        localStorage.setItem(
+          "openergyChecklistDraft",
+          JSON.stringify(checklistDataToSave)
+        );
+        alert("Draft saved successfully!");
+        updateTimestamp("checklist-time");
+      }
+
+      // Load checklist from localStorage
+      function loadChecklistFromStorage() {
+        const savedData = localStorage.getItem("openergyChecklistDraft");
+        if (!savedData) {
+          alert("No saved draft found");
+          return;
+        }
+
+        if (
+          !confirm("Load saved draft? This will overwrite current progress.")
+        ) {
+          return;
+        }
+
+        const checklistData = JSON.parse(savedData);
+
+        // Set basic info
+        currentPosition = checklistData.position;
+        document.getElementById("shift-type").value = checklistData.shiftType;
+        document.getElementById("checklist-date").value = checklistData.date;
+
+        if (checklistData.weekendShiftType) {
+          document.querySelector(".weekend-shift").classList.remove("hidden");
+          document.getElementById("weekend-shift-type").value =
+            checklistData.weekendShiftType;
+        }
+
+        // Populate checklist items
+        checklistData.items.forEach((savedItem) => {
+          const rows = document.querySelectorAll("#checklist-table tbody tr");
+          rows.forEach((row) => {
+            const location = row.querySelector("td:first-child").textContent;
+            if (location === savedItem.location) {
+              const select = row.querySelector("select");
+              const input = row.querySelector("input");
+              if (select) {
+                select.value = savedItem.value;
+                // Apply color based on selection
+                select.classList.remove(
+                  "select-ok",
+                  "select-no",
+                  "select-present",
+                  "select-absent",
+                  "select-default"
+                );
+                if (select.value === "OK") {
+                  select.classList.add("select-ok");
+                } else if (select.value === "NO") {
+                  select.classList.add("select-no");
+                } else if (select.value === "PRESENT") {
+                  select.classList.add("select-present");
+                } else if (select.value === "ABSENT") {
+                  select.classList.add("select-absent");
+                } else {
+                  select.classList.add("select-default");
+                }
+                // Trigger change event to update validation
+                const event = new Event("change");
+                select.dispatchEvent(event);
+              } else if (input) {
+                input.value = savedItem.value;
+                // Trigger input event to update validation
+                const event = new Event("input");
+                input.dispatchEvent(event);
+              }
+            }
+          });
+        });
+
+        // Set remarks if available
+        if (checklistData.remarks && document.getElementById("remarks-text")) {
+          document.getElementById("remarks-text").value = checklistData.remarks;
+        }
+
+        alert("Draft loaded successfully!");
+        updateTimestamp("checklist-time");
+      }
+
+      // Export checklist to PDF with color-coded selections
+      function exportChecklistToPDF() {
+        // Create new jsPDF instance
+        const doc = new jsPDF();
+
+        // Add title
+        doc.setFontSize(18);
+        doc.text("SIEMENS ENERGY WALKDOWN CHECKLIST", 105, 15, {
+          align: "center",
+        });
+
+        // Add header info
+        doc.setFontSize(12);
+        doc.text(
+          `Position: ${
+            currentPosition === "operator" ? "Operator" : "Shift Manager"
+          }`,
+          14,
+          25
+        );
+        doc.text(
+          `Shift: ${document.getElementById("checklist-header").textContent}`,
+          14,
+          32
+        );
+        doc.text(`Date: ${new Date().toLocaleString("en-GB")}`, 14, 39);
+
+        // Add weather info if available
+        const weatherLocation =
+          document.getElementById("weather-location").textContent;
+        if (weatherLocation !== "Loading weather...") {
+          doc.text(
+            `Weather: ${weatherLocation}, ${
+              document.getElementById("weather-temp").textContent
+            }°C`,
+            14,
+            46
+          );
+        }
+
+        // Prepare table data with styles
+        const tableData = [];
+        const styles = [];
+        const rows = document.querySelectorAll("#checklist-table tbody tr");
+
+        rows.forEach((row) => {
+          const location = row.querySelector("td:first-child").textContent;
+          const kks = row.querySelector("td:nth-child(2)").textContent;
+          const checkType = row.querySelector("td:nth-child(3)").textContent;
+          let value = "";
+          let cellStyle = {};
+
+          const select = row.querySelector("select");
+          const input = row.querySelector("input");
+
+          if (select) {
+            value = select.value;
+            // Apply color based on selection
+            if (value === "OK" || value === "ABSENT") {
+              cellStyle = { textColor: [40, 167, 69] }; // Green
+              cellStyle.fontStyle = "bold";
+            } else if (value === "NO" || value === "PRESENT") {
+              cellStyle = { textColor: [220, 53, 69] }; // Red
+              cellStyle.fontStyle = "bold";
+            }
+          } else if (input) {
+            value =
+              input.value +
+              (row.querySelector(".unit-label")?.textContent || "");
+
+            // Apply color for numeric/slash values
+            if (
+              input.classList.contains("valid-value") ||
+              input.classList.contains("slash-value")
+            ) {
+              cellStyle = { textColor: [40, 167, 69] }; // Green
+              cellStyle.fontStyle = "bold";
+            } else if (
+              input.classList.contains("low-value") ||
+              input.classList.contains("high-value")
+            ) {
+              cellStyle = { textColor: [220, 53, 69] }; // Red
+              cellStyle.fontStyle = "bold";
+            }
+          }
+
+          tableData.push([location, kks, checkType, value]);
+          styles.push({}, {}, {}, cellStyle);
+        });
+
+        // Add checklist table using autoTable with styles
+        doc.autoTable({
+          head: [["Location", "KKS", "Check", "Value"]],
+          body: tableData,
+          startY: 55,
+          styles: {
+            fontSize: 8,
+            cellPadding: 2,
+          },
+          columnStyles: {
+            0: { cellWidth: 60 },
+            1: { cellWidth: 40 },
+            2: { cellWidth: 30 },
+            3: { cellWidth: 40 },
+          },
+          bodyStyles: styles,
+        });
+
+        // Add remarks if available
+        const remarks = document.getElementById("remarks-text")?.value;
+        if (remarks) {
+          doc.setFontSize(12);
+          doc.text("Remarks:", 14, doc.lastAutoTable.finalY + 15);
+          doc.setFontSize(10);
+          const splitRemarks = doc.splitTextToSize(remarks, 180);
+          doc.text(splitRemarks, 14, doc.lastAutoTable.finalY + 22);
+        }
+
+        // Add footer
+        doc.setFontSize(8);
+        doc.text(
+          "Generated by Siemens Energy Alon-Gat Walkdown System",
+          105,
+          doc.internal.pageSize.height - 10,
+          { align: "center" }
+        );
+
+        // Save the PDF
+        doc.save(
+          `walkdown_checklist_${new Date().toISOString().slice(0, 10)}.pdf`
+        );
+      }
+
+      // Fetch weather data from OpenWeatherMap API
+      async function fetchWeatherData() {
+        try {
+          const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${weatherConfig.city}&units=${weatherConfig.units}&appid=${weatherConfig.apiKey}`
+          );
+
+          if (!response.ok) {
+            throw new Error("Weather data not available");
+          }
+
+          const data = await response.json();
+          return data;
+        } catch (error) {
+          console.error("Error fetching weather data:", error);
+          return null;
+        }
+      }
+
+      // Update weather display
+      async function updateWeatherDisplay() {
+        const weatherData = await fetchWeatherData();
+        if (!weatherData) {
+          document.getElementById("weather-description").textContent =
+            "Weather data unavailable";
+          return;
+        }
+
+        // Update weather information
+        document.getElementById(
+          "weather-location"
+        ).textContent = `${weatherData.name}, ${weatherData.sys.country}`;
+        document.getElementById("weather-description").textContent =
+          weatherData.weather[0].description.charAt(0).toUpperCase() +
+          weatherData.weather[0].description.slice(1);
+        document.getElementById("weather-temp").textContent = Math.round(
+          weatherData.main.temp
+        );
+        document.getElementById("weather-humidity").textContent =
+          weatherData.main.humidity;
+
+        // Set weather icon
+        const iconUrl = `https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`;
+        document.getElementById("weather-icon").src = iconUrl;
+        document.getElementById("weather-icon").alt =
+          weatherData.weather[0].main;
+      }
+
+      // Initialize timestamps
+      updateTimestamp("login-time");
+
+      // Login functionality
+      document
+        .getElementById("login-btn")
+        .addEventListener("click", function () {
+          const employeeId = document.getElementById("employee-id").value;
+          const password = document.getElementById("password").value;
+
+          if (employeeId.length !== 4 || !/^\d+$/.test(employeeId)) {
+            alert("Please enter a valid 4-digit employee ID");
+            return;
+          }
+
+          if (!password) {
+            alert("Please enter your password");
+            return;
+          }
+
+          document.getElementById("login-screen").classList.add("hidden");
+          document
+            .getElementById("position-selection")
+            .classList.remove("hidden");
+          updateTimestamp("position-select-time");
+        });
+
+      // Position selection
+      document
+        .getElementById("operator-btn")
+        .addEventListener("click", function () {
+          currentPosition = "operator";
+          document.getElementById("position-selection").classList.add("hidden");
+          document.getElementById("shift-selection").classList.remove("hidden");
+          document.getElementById("shift-selection-title").textContent =
+            "Operator - Select Your Shift";
+          updateTimestamp("shift-select-time");
+
+          // Populate shift types for operators
+          const shiftTypeSelect = document.getElementById("shift-type");
+          shiftTypeSelect.innerHTML = `
+                <option value="morning">Morning Shift @ 9:00</option>
+                <option value="evening">Evening Shift @ 16:00</option>
+                <option value="night">Night Shift @ 00:00</option>
+                <option value="weekend">Weekend Shift</option>
+            `;
+
+          // Set default date to today
+          const today = new Date().toISOString().split("T")[0];
+          document.getElementById("checklist-date").value = today;
+        });
+
+      document
+        .getElementById("manager-btn")
+        .addEventListener("click", function () {
+          currentPosition = "manager";
+          document.getElementById("position-selection").classList.add("hidden");
+          document.getElementById("shift-selection").classList.remove("hidden");
+          document.getElementById("shift-selection-title").textContent =
+            "Shift Manager - Select Your Shift";
+          updateTimestamp("shift-select-time");
+
+          // Populate shift types for managers
+          const shiftTypeSelect = document.getElementById("shift-type");
+          shiftTypeSelect.innerHTML = `
+                <option value="morning">Morning Shift @ 16:00</option>
+                <option value="evening">Evening Shift @ 21:00</option>
+                <option value="night">Night Shift @ 4:30</option>
+                <option value="weekend">Weekend Shift</option>
+            `;
+
+          // Set default date to today
+          const today = new Date().toISOString().split("T")[0];
+          document.getElementById("checklist-date").value = today;
+        });
+
+      // Back to login from position selection
+      document
+        .getElementById("back-to-login-from-position")
+        .addEventListener("click", function () {
+          document.getElementById("position-selection").classList.add("hidden");
+          document.getElementById("login-screen").classList.remove("hidden");
+          updateTimestamp("login-time");
+        });
+
+      // Back to position selection from shift selection
+      document
+        .getElementById("back-to-position")
+        .addEventListener("click", function () {
+          document.getElementById("shift-selection").classList.add("hidden");
+          document
+            .getElementById("position-selection")
+            .classList.remove("hidden");
+          updateTimestamp("position-select-time");
+        });
+
+      // Show/hide weekend shift options based on selection
+      document
+        .getElementById("shift-type")
+        .addEventListener("change", function () {
+          const weekendShiftDiv = document.querySelector(".weekend-shift");
+          if (this.value === "weekend") {
+            weekendShiftDiv.classList.remove("hidden");
+          } else {
+            weekendShiftDiv.classList.add("hidden");
+          }
+        });
+
+      // Proceed to checklist
+      document
+        .getElementById("proceed-btn")
+        .addEventListener("click", function () {
+          const shiftType = document.getElementById("shift-type").value;
+          const date = document.getElementById("checklist-date").value;
+
+          if (!date) {
+            alert("Please select a date");
+            return;
+          }
+
+          // For weekend shifts, get the specific weekend shift type
+          let fullShiftType = shiftType;
+          if (shiftType === "weekend") {
+            const weekendShiftType =
+              document.getElementById("weekend-shift-type").value;
+            fullShiftType = `${shiftType} (${weekendShiftType})`;
+          }
+
+          document.getElementById("shift-selection").classList.add("hidden");
+          document
+            .getElementById("checklist-screen")
+            .classList.remove("hidden");
+
+          // Update timestamps and weather
+          updateTimestamp("checklist-time");
+          updateWeatherDisplay();
+
+          // Format date for display
+          const formattedDate = new Date(date).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+
+          // Set header with position and shift info
+          const positionName =
+            currentPosition === "operator" ? "Operator" : "Shift Manager";
+          const shiftNames = {
+            morning: "Morning Shift",
+            evening: "Evening Shift",
+            night: "Night Shift",
+            weekend: "Weekend Shift",
+            "weekend (morning-12hr)": "Weekend Morning 12hr",
+            "weekend (night-12hr)": "Weekend Night 12hr",
+          };
+
+          document.getElementById(
+            "checklist-header"
+          ).textContent = `${positionName} - ${
+            shiftNames[fullShiftType] || fullShiftType
+          } - ${formattedDate}`;
+
+          // Populate checklist table based on position
+          const tableBody = document.querySelector("#checklist-table tbody");
+          tableBody.innerHTML = "";
+
+          checklistData.forEach((item, index) => {
+            // Skip items not visible to current position
+            if (!item.visibleTo.includes(currentPosition)) {
+              return;
+            }
+
+            const row = document.createElement("tr");
+            row.dataset.itemIndex = index;
+
+            // Location
+            const locationCell = document.createElement("td");
+            locationCell.textContent = item.location;
+            row.appendChild(locationCell);
+
+            // KKS
+            const kksCell = document.createElement("td");
+            kksCell.textContent = item.kks;
+            row.appendChild(kksCell);
+
+            // Check type
+            const checkCell = document.createElement("td");
+            checkCell.textContent = item.check;
+            row.appendChild(checkCell);
+
+            // Value input
+            const valueCell = document.createElement("td");
+            if (item.options && item.options.length > 0) {
+              const select = document.createElement("select");
+
+              // Add options with "Select" as default
+              item.options.forEach((option) => {
+                const optionElement = document.createElement("option");
+                optionElement.value = option;
+                optionElement.textContent = option;
+                // Make "Select" option disabled and selected by default
+                if (option === "Select") {
+                  optionElement.disabled = true;
+                  optionElement.selected = true;
+                  optionElement.hidden = true;
+                }
+                select.appendChild(optionElement);
+              });
+
+              // Add change handler to track interactions and apply color
+              select.addEventListener("change", function () {
+                handleRowInteraction(index);
+
+                // Apply color based on selection
+                this.classList.remove(
+                  "select-ok",
+                  "select-no",
+                  "select-present",
+                  "select-absent",
+                  "select-default"
+                );
+
+                if (this.value === "OK") {
+                  this.classList.add("select-ok");
+                } else if (this.value === "NO") {
+                  this.classList.add("select-no");
+                } else if (this.value === "PRESENT") {
+                  this.classList.add("select-present");
+                } else if (this.value === "ABSENT") {
+                  this.classList.add("select-absent");
+                } else {
+                  this.classList.add("select-default");
+                }
+              });
+
+              // Add styling class based on check type
+              if (item.check === "Alarms") {
+                select.classList.add("alarms-select");
+              } else {
+                select.classList.add("ok-no-select");
+              }
+
+              valueCell.appendChild(select);
+            } else {
+              const container = document.createElement("div");
+              container.className = "value-input-container";
+
+              const input = document.createElement("input");
+              input.type = item.allowSlash ? "text" : "number";
+              input.className = "value-input";
+              input.placeholder = item.allowSlash
+                ? "e.g. -22/-15"
+                : "Enter value";
+              if (item.defaultValue) {
+                input.value = item.defaultValue;
+              }
+
+              // Add input handler to track interactions
+              input.addEventListener("input", function () {
+                handleRowInteraction(index);
+
+                // Add validation if range is specified
+                if (item.min !== undefined && item.max !== undefined) {
+                  validateValue(input, item.min, item.max, item.allowSlash);
+                }
+              });
+
+              // Add unit label
+              const unitLabel = document.createElement("span");
+              unitLabel.className = "unit-label";
+              unitLabel.textContent = item.unit || "";
+
+              container.appendChild(input);
+              container.appendChild(unitLabel);
+              valueCell.appendChild(container);
+
+              // Validate initial value
+              if (
+                item.min !== undefined &&
+                item.max !== undefined &&
+                input.value
+              ) {
+                validateValue(input, item.min, item.max, item.allowSlash);
+              }
+            }
+            row.appendChild(valueCell);
+
+            tableBody.appendChild(row);
+          });
+        });
+
+      // Close modal when acknowledged
+      document
+        .getElementById("acknowledge-warning")
+        .addEventListener("click", function () {
+          document.getElementById("critical-warning-modal").style.display =
+            "none";
+        });
+
+      // Handle final submission with remarks
+      document
+        .getElementById("confirm-submit")
+        .addEventListener("click", function () {
+          const remarks = document.getElementById("remarks-text").value;
+
+          // In a real application, you would save the checklist data along with remarks
+          console.log("Checklist submitted with remarks:", remarks);
+
+          alert("Checklist submitted successfully with your remarks!");
+          updateTimestamp("checklist-time");
+
+          // Hide remarks section after submission
+          hideRemarksSection();
+        });
+
+      // Cancel submission and hide remarks
+      document
+        .getElementById("cancel-submit")
+        .addEventListener("click", function () {
+          hideRemarksSection();
+        });
+
+      // Submit button shows remarks section
+      document
+        .getElementById("submit-btn")
+        .addEventListener("click", function () {
+          // Validate all dropdowns have been selected
+          const selects = document.querySelectorAll("select");
+          let isValid = true;
+
+          selects.forEach((select) => {
+            if (select.value === "Select") {
+              select.style.borderColor = "red";
+              isValid = false;
+            } else {
+              select.style.borderColor = "";
+            }
+          });
+
+          // Validate all numeric inputs are within range
+          const inputs = document.querySelectorAll(".value-input");
+          inputs.forEach((input) => {
+            const row = input.closest("tr");
+            const location = row.querySelector("td:first-child").textContent;
+            const item = checklistData.find(
+              (item) => item.location === location
+            );
+
+            if (item && item.min !== undefined && item.max !== undefined) {
+              if (item.allowSlash && input.value.includes("/")) {
+                const parts = input.value.split("/");
+                if (parts.length !== 2) {
+                  input.style.borderColor = "red";
+                  isValid = false;
+                  return;
+                }
+
+                const part1 = parseFloat(parts[0]);
+                const part2 = parseFloat(parts[1]);
+
+                if (
+                  isNaN(part1) ||
+                  isNaN(part2) ||
+                  part1 < item.min ||
+                  part1 > item.max ||
+                  part2 < item.min ||
+                  part2 > item.max
+                ) {
+                  input.style.borderColor = "red";
+                  isValid = false;
+                } else {
+                  input.style.borderColor = "";
+                }
+              } else {
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < item.min || value > item.max) {
+                  input.style.borderColor = "red";
+                  isValid = false;
+                } else {
+                  input.style.borderColor = "";
+                }
+              }
+            }
+          });
+
+          if (!isValid) {
+            alert(
+              "Please complete all fields with valid values before submitting."
+            );
+            return;
+          }
+
+          // Show remarks section for final comments
+          showRemarksSection();
+        });
+
+      // Logout functionality
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", function () {
+          document.getElementById("checklist-screen").classList.add("hidden");
+          document.getElementById("login-screen").classList.remove("hidden");
+          updateTimestamp("login-time");
+
+          // Clear inputs
+          document.getElementById("employee-id").value = "";
+          document.getElementById("password").value = "";
+          currentPosition = null;
+          lastInteractedRow = null;
+        });
+
+      // Refresh weather button
+      document
+        .getElementById("refresh-weather")
+        .addEventListener("click", function () {
+          updateWeatherDisplay();
+          updateTimestamp("checklist-time");
+        });
+
+      // Refresh timestamp button
+      document
+        .getElementById("refresh-time-btn")
+        .addEventListener("click", function () {
+          updateTimestamp("checklist-time");
+        });
+
+      // Save draft functionality
+      document
+        .getElementById("save-draft-btn")
+        .addEventListener("click", function () {
+          saveChecklistToStorage();
+        });
+
+      // Load draft functionality
+      document
+        .getElementById("load-draft-btn")
+        .addEventListener("click", function () {
+          loadChecklistFromStorage();
+        });
+
+      // Export to PDF functionality
+      document
+        .getElementById("export-pdf-btn")
+        .addEventListener("click", function () {
+          exportChecklistToPDF();
+        });
+    </script>
+  </body>
+</html>
